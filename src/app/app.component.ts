@@ -372,24 +372,24 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   GetVendorDetailsID(supplierId: any) {
-    this.api.getVendorDetailsID(supplierId).subscribe({
-      next: (res: any) => {
-        if (Array.isArray(res) && res.length > 0) {
-          this.vregid=res[0].vregid;
-          console.log('Vendor vregid:', this.vregid);
-          sessionStorage.setItem('vregid',this.vregid)
+    // this.api.getVendorDetailsID(supplierId).subscribe({
+    //   next: (res: any) => {
+    //     if (Array.isArray(res) && res.length > 0) {
+    //       this.vregid=res[0].vregid;
+    //       console.log('Vendor vregid:', this.vregid);
+    //       sessionStorage.setItem('vregid',this.vregid)
         
-        } else {
-          console.warn('No vendor details found.');
-          alert('⚠️ Please update your supplier information (vendor registration number missing).');
-          this.router.navigate(['masters/particular-supplier-add']);
+    //     } else {
+    //       console.warn('No vendor details found.');
+    //       alert('⚠️ Please update your supplier information (vendor registration number missing).');
+    //       this.router.navigate(['masters/particular-supplier-add']);
 
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching vendor details:', err);
-      }
-    });
+    //     }
+    //   },
+    //   error: (err:any) => {
+    //     console.error('Error fetching vendor details:', err);
+    //   }
+    // });
   }
   
   private updateMenu() {

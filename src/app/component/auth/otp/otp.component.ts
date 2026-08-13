@@ -50,31 +50,31 @@ InsertUserLoginLogData: InsertUserLoginLogmodal = new InsertUserLoginLogmodal();
 
   
       // Call the API to verify the OTP
-      this.api.VerifyOTPLogin(this.otp, this.userid).subscribe(
-        (res: any) => {
-          console.log("Response", res);
+      // this.api.VerifyOTPLogin(this.otp, this.userid).subscribe(
+      //   (res: any) => {
+      //     console.log("Response", res);
   
-          // Show SweetAlert for successful OTP verification
-          Swal.fire({
-            title: 'Login Successful!',
-            text: 'You have successfully logged in.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            // Navigate to the home page after the SweetAlert is closed
-            this.router.navigate(['home']);
-          });
-        },
-        (error) => {
-          // Show SweetAlert for OTP verification error
-          Swal.fire({
-            title: 'Error',
-            text: 'Invalid OTP! Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
-        }
-      );
+      //     // Show SweetAlert for successful OTP verification
+      //     Swal.fire({
+      //       title: 'Login Successful!',
+      //       text: 'You have successfully logged in.',
+      //       icon: 'success',
+      //       confirmButtonText: 'OK'
+      //     }).then(() => {
+      //       // Navigate to the home page after the SweetAlert is closed
+      //       this.router.navigate(['home']);
+      //     });
+      //   },
+      //   (error:any) => {
+      //     // Show SweetAlert for OTP verification error
+      //     Swal.fire({
+      //       title: 'Error',
+      //       text: 'Invalid OTP! Please try again.',
+      //       icon: 'error',
+      //       confirmButtonText: 'OK'
+      //     });
+      //   }
+      // );
     } else {
       // Show SweetAlert for invalid OTP input
       Swal.fire({
@@ -102,33 +102,33 @@ InsertUserLoginLogData: InsertUserLoginLogmodal = new InsertUserLoginLogmodal();
     });
   
     // Call API to send OTP
-    this.api.getOTPSaved(this.userid,this.ipAddress).subscribe(
-      (res: any) => {
-        // Close the loading indicator
-        Swal.close();
+    // this.api.getOTPSaved(this.userid,this.ipAddress).subscribe(
+    //   (res: any) => {
+    //     // Close the loading indicator
+    //     Swal.close();
   
-        // Show success alert
-        Swal.fire({
-          title: 'OTP Sent!',
-          text: 'An OTP has been sent to your registered mobile number \n'+this.phonE1,
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then(() => {
-          // Navigate to the OTP page after confirmation
+    //     // Show success alert
+    //     Swal.fire({
+    //       title: 'OTP Sent!',
+    //       text: 'An OTP has been sent to your registered mobile number \n'+this.phonE1,
+    //       icon: 'success',
+    //       confirmButtonText: 'OK',
+    //     }).then(() => {
+    //       // Navigate to the OTP page after confirmation
           
-          this.router.navigate(['/otp']); // Replace with your route
-        });
-      },
-      (error: any) => {
-        // Handle error and show failure alert
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to send OTP. Please try again later.',
-          icon: 'error',
-          confirmButtonText: 'OK',
-        });
-      }
-    );
+    //       this.router.navigate(['/otp']); // Replace with your route
+    //     });
+    //   },
+    //   (error: any) => {
+    //     // Handle error and show failure alert
+    //     Swal.fire({
+    //       title: 'Error!',
+    //       text: 'Failed to send OTP. Please try again later.',
+    //       icon: 'error',
+    //       confirmButtonText: 'OK',
+    //     });
+    //   }
+    // );
   }
 
   getIPAddress() {
@@ -155,42 +155,42 @@ InsertUserLoginLogData: InsertUserLoginLogmodal = new InsertUserLoginLogmodal();
   }
 
   InsertUserLoginLog() {
-    try {
+  //   try {
 
-      // console.log("save data");
-      // return;
-      const roleIdName = localStorage.getItem('roleName') || '';
-      const userId = Number(sessionStorage.getItem('userid') || 0);
-      const roleId = Number(sessionStorage.getItem('roleId') || 0);
-      const userName = sessionStorage.getItem('firstname') || '';
-      const ipAddress = sessionStorage.getItem('ipAddress') || '';
-      const userAgent = navigator.userAgent; 
-      this.InsertUserLoginLogData.logId = 0; 
-      this.InsertUserLoginLogData.userId = userId;
-      this.InsertUserLoginLogData.roleId = roleId;
-      this.InsertUserLoginLogData.roleIdName = roleIdName;
-      this.InsertUserLoginLogData.userName = userName;
-      this.InsertUserLoginLogData.ipAddress = ipAddress;
-      this.InsertUserLoginLogData.userAgent = userAgent;
-      // console.log('InsertUserLoginLogData=',this.InsertUserLoginLogData);
-  // if(localStorage.getItem('Log Saved')|| ''!){
+  //     // console.log("save data");
+  //     // return;
+  //     const roleIdName = localStorage.getItem('roleName') || '';
+  //     const userId = Number(sessionStorage.getItem('userid') || 0);
+  //     const roleId = Number(sessionStorage.getItem('roleId') || 0);
+  //     const userName = sessionStorage.getItem('firstname') || '';
+  //     const ipAddress = sessionStorage.getItem('ipAddress') || '';
+  //     const userAgent = navigator.userAgent; 
+  //     this.InsertUserLoginLogData.logId = 0; 
+  //     this.InsertUserLoginLogData.userId = userId;
+  //     this.InsertUserLoginLogData.roleId = roleId;
+  //     this.InsertUserLoginLogData.roleIdName = roleIdName;
+  //     this.InsertUserLoginLogData.userName = userName;
+  //     this.InsertUserLoginLogData.ipAddress = ipAddress;
+  //     this.InsertUserLoginLogData.userAgent = userAgent;
+  //     // console.log('InsertUserLoginLogData=',this.InsertUserLoginLogData);
+  // // if(localStorage.getItem('Log Saved')|| ''!){
 
-  // }
-      // API call
-      this.api.InsertUserLoginLogPOST(this.InsertUserLoginLogData).subscribe({
-        next: (res: any) => {
-          console.log('Log Saved:',res);
-          // const LogSaved='Log Saved'
-          // localStorage.setItem('Log Saved', LogSaved);
-        },
-        error: (err: any) => {
-          console.error('Backend Error:', JSON.stringify(err.message));
-        }
-      });
+  // // }
+  //     // API call
+  //     this.api.InsertUserLoginLogPOST(this.InsertUserLoginLogData).subscribe({
+  //       next: (res: any) => {
+  //         console.log('Log Saved:',res);
+  //         // const LogSaved='Log Saved'
+  //         // localStorage.setItem('Log Saved', LogSaved);
+  //       },
+  //       error: (err: any) => {
+  //         console.error('Backend Error:', JSON.stringify(err.message));
+  //       }
+  //     });
   
-    } catch (err: any) {
-      console.error('Error:', err.message);
-    }
+  //   } catch (err: any) {
+  //     console.error('Error:', err.message);
+  //   }
   }
   
 }

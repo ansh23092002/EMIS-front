@@ -8,11 +8,11 @@ import { masddlUser } from '../Model/masddlUser';
   providedIn: 'root',
 })
 export class ApiService {
-  private readonly apiUrl = 'https://cgmsc.gov.in/HIMIS_APIN/api';
-  private readonly CGMSCHO_API2 = 'https://dpdmis.in/CGMSCHO_API2/api';
-  private readonly VREGAPI = 'https://dpdmis.in/VREGAPI/api';
-  private readonly himis_apin = 'https://www.cgmsc.gov.in/himis_apin/api';
-  private readonly API = 'https://cgmsc.gov.in/EMIS_API';
+  // private readonly apiUrl = 'https://cgmsc.gov.in/HIMIS_APIN/api';
+  // private readonly CGMSCHO_API2 = 'https://dpdmis.in/CGMSCHO_API2/api';
+  // private readonly VREGAPI = 'https://dpdmis.in/VREGAPI/api';
+  // private readonly himis_apin = 'https://www.cgmsc.gov.in/himis_apin/api';
+  // private readonly API = 'https://cgmsc.gov.in/EMIS_API';
   private readonly apiUrll = `${environment.apiUrl}/Auth`;
   private readonly apiUrls = `${environment.apiUrl}/`;
 
@@ -484,7 +484,7 @@ export class ApiService {
 }
   
     public post(url: string, data: FormData, options?: any) {
-    return this.http.post(this.API + url, data, options);
+    // return this.http.post(this.API + url, data, options);
   }
   public post1(url: string, data: any, options?: any) {
   return this.http.post(this.apiUrls + url, data, options);
@@ -507,6 +507,8 @@ delete<T>(url: string): Observable<T> {
 
   if (fullUrl.includes('localhost:4200')) {
     fullUrl = fullUrl.replace('http://localhost:4200', 'https://localhost:7036');
+    // fullUrl = fullUrl.replace('http://103.51.8.80', 'https://localhost:7036');
+    // fullUrl = fullUrl.replace('https://cgmsc.gov.in', 'https://localhost:7036');
   }
 
   // console.log('Sanitized Fixed Execution URL Container:', fullUrl);
@@ -531,59 +533,61 @@ public put(url: string, data: any) {
 
 post3(endpoint: string, payload: any) {
 
-  const absoluteUrl = `https://localhost:7036/api/${endpoint}`;
+  // const absoluteUrl = `https://localhost:7036/api/${endpoint}`;
+  // const absoluteUrl = `http://103.51.8.80/emsapi/api/${endpoint}`;
+  const absoluteUrl = `https://cgmsc.gov.in/emsapi/api/${endpoint}`;
   return this.http.post(absoluteUrl, payload);
 }
 
 
   masddlUser(Usertype: any) {
-    return this.http.get<masddlUser[]>(`${this.CGMSCHO_API2}/Master/masddlUser?Usertype=${Usertype}`);
+    // return this.http.get<masddlUser[]>(`${this.CGMSCHO_API2}/Master/masddlUser?Usertype=${Usertype}`);
   }
  
   VerifyOTPLogin(otp: any, userid: any) {
-    return this.http.get(
-      `${this.CGMSCHO_API2}/Login/VerifyOTPLogin?otp=${otp}&userid=${userid}`,
-      { responseType: 'text' }
-    );
+    // return this.http.get(
+    //   `${this.CGMSCHO_API2}/Login/VerifyOTPLogin?otp=${otp}&userid=${userid}`,
+    //   { responseType: 'text' }
+    // );
   }
   getDashLoginDDL() {
 
     return this.http.get<DashLoginDDL[]>(`https://cgmsc.gov.in/HIMIS_APIN/api/Work/getDashLoginDDL`);
   }
   getOTPSaved(userid: any, ipAddress: any) {
-    const url = `${
-      this.CGMSCHO_API2
-    }/Login/getOTPSaved?userid=${userid}&ipAddress=${encodeURIComponent(
-      ipAddress
-    )}`;
-    return this.http.post(url, null, { responseType: 'text' });
+    // const url = `${
+    //   this.CGMSCHO_API2
+    // }/Login/getOTPSaved?userid=${userid}&ipAddress=${encodeURIComponent(
+    //   ipAddress
+    // )}`;
+    // return this.http.post(url, null, { responseType: 'text' });
   }
   InsertUserLoginLogPOST(values: any) {
-    return this.http.post(
-      `${this.CGMSCHO_API2}/LogAudit/InsertUserLoginLog`,
-      values,
-      {
-        responseType: 'text',
-      }
-    );
+    // return this.http.post(
+    //   `${this.CGMSCHO_API2}/LogAudit/InsertUserLoginLog`,
+    //   values,
+    //   {
+    //     responseType: 'text',
+    //   }
+    // );
   
   }
 
   InsertUserPageViewLogPOST(values: any) {
-    return this.http.post(
-      `${this.CGMSCHO_API2}/LogAudit/InsertUserPageViewLog`,
-      values,
-      {
-        responseType: 'text',
-      }
-    );
+    // return this.http.post(
+    //   `${this.CGMSCHO_API2}/LogAudit/InsertUserPageViewLog`,
+    //   values,
+    //   {
+    //     responseType: 'text',
+    //   }
+    // );
   }
 
   //#endregion
   getVendorDetailsID(supplierId: any) {
-    return this.http.get(
-      `${this.VREGAPI}/Registration/registeredVendors?vregid=${supplierId}`
-    );
+    // return this.http.get(
+    //   `${this.VREGAPI}/Registration/registeredVendors?vregid=${supplierId}`
+    // );
   }
 
 

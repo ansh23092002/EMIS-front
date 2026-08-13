@@ -239,26 +239,26 @@ this.fullUrl = window.location.href;
   }
 
   GetVendorDetailsID(supplierId: any) {
-    this.api.getVendorDetailsID(supplierId).subscribe({
-      next: (res: any) => {
-        if (Array.isArray(res) && res.length > 0) {
-          this.vregid=res[0].vregid;
-          const panno=res[0].pancardno;
-          sessionStorage.setItem('panno',panno)
-          console.log('Vendor vregid:', this.vregid);
-          sessionStorage.setItem('vregid',this.vregid)
+    // this.api.getVendorDetailsID(supplierId).subscribe({
+    //   next: (res: any) => {
+    //     if (Array.isArray(res) && res.length > 0) {
+    //       this.vregid=res[0].vregid;
+    //       const panno=res[0].pancardno;
+    //       sessionStorage.setItem('panno',panno)
+    //       console.log('Vendor vregid:', this.vregid);
+    //       sessionStorage.setItem('vregid',this.vregid)
         
-        } else {
-          console.warn('No vendor details found.');
-          alert('⚠️ Please generate vendor registration number.');
-          this.router.navigate(['generate-registration']);
+    //     } else {
+    //       console.warn('No vendor details found.');
+    //       alert('⚠️ Please generate vendor registration number.');
+    //       this.router.navigate(['generate-registration']);
   
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching vendor details:', err);
-      }
-    });
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error('Error fetching vendor details:', err);
+    //   }
+    // });
   }
   
 
@@ -359,16 +359,16 @@ this.fullUrl = window.location.href;
 
   // }
       // API call
-      this.api.InsertUserPageViewLogPOST(this.InsertUserPageViewLogdata).subscribe({
-        next: (res: any) => {
-          console.log('Page View Log Saved:',res);
-          // const LogSaved='Log Saved'
-          // localStorage.setItem('Log Saved', LogSaved);
-        },
-        error: (err: any) => {
-          console.error('Backend Error:', JSON.stringify(err.message));
-        }
-      });
+      // this.api.InsertUserPageViewLogPOST(this.InsertUserPageViewLogdata).subscribe({
+      //   next: (res: any) => {
+      //     console.log('Page View Log Saved:',res);
+      //     // const LogSaved='Log Saved'
+      //     // localStorage.setItem('Log Saved', LogSaved);
+      //   },
+      //   error: (err: any) => {
+      //     console.error('Backend Error:', JSON.stringify(err.message));
+      //   }
+      // });
   
     } catch (err: any) {
       console.error('Error:', err.message);

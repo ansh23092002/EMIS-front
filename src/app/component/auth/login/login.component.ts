@@ -40,6 +40,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   onButtonClick(arg0: string) {
     throw new Error('Method not implemented.');
   }
+captcha: string = '';
+captchaValue: string = '';
 
   adminDropdownList: any = [];
   cgmsclDropdownList: any = [];
@@ -82,6 +84,7 @@ approle:any;
   ngOnInit() {
     this.getallusers('6');
     this.loadSupplierAuthOptions();
+         this.generateCaptcha();
   }
 
   onUserChange(event: Event): void {
@@ -309,6 +312,13 @@ approle:any;
     this.pwd = '';
     this.cancelSupplierOtp();
     this.loadSupplierAuthOptions();
+  }
+
+  generateCaptcha(): void {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    this.captcha = Array.from({ length: 6 }, () =>
+      characters.charAt(Math.floor(Math.random() * characters.length))
+    ).join('');
   }
 
   private loadSupplierAuthOptions(): void {
@@ -620,8 +630,14 @@ approle:any;
   }
 
   async handleCgmsclLogin1() {
-    // debugger;
-    // debugger
+   
+if (this.captchaValue !== this.captcha) {
+  this.toastr.error('Incorrect CAPTCHA. Please try again.');
+  this.generateCaptcha(); 
+  this.captchaValue = ''; 
+  return;
+}
+
 
     if (!this.emailid || !this.pwd) {
       this.toastr.error('User and Password required');

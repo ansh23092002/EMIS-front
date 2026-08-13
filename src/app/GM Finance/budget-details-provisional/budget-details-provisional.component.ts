@@ -767,7 +767,9 @@ onViewPdfInNewTab(abgid: number) {
   if (!abgid) return;
   
   // Directly point the browser target execution to the API Get Stream location routing path
-  const viewUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${abgid}`;
+  // const viewUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${abgid}`;
+  // const viewUrl = `http://103.51.8.80/emsapi/api/GMFI/DownloadFundFile/${abgid}`;
+  const viewUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/DownloadFundFile/${abgid}`;
   window.open(viewUrl, '_blank');
 }
 
@@ -776,7 +778,9 @@ onForceDownloadPdf(abgid: number) {
   if (!abgid) return;
   
   // Passing the forceDownload query string flag to change content headers behavior
-  const downloadUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${abgid}?forceDownload=true`;
+  // const downloadUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${abgid}?forceDownload=true`;
+  // const downloadUrl = `http://103.51.8.80/emsapi/api/GMFI/DownloadFundFile/${abgid}?forceDownload=true`;
+  const downloadUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/DownloadFundFile/${abgid}?forceDownload=true`;
   
   // Creates temporary ghost element anchor tag to trigger forced file downloads pipelines
   const anchorLink = document.createElement('a');
@@ -799,7 +803,9 @@ onViewRowDocumentInline(rowElement: any) {
   }
 
   this.spinner.show();
-  const targetViewUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=false`;
+  // const targetViewUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=false`;
+  // const targetViewUrl = `http://103.51.8.80/emsapi/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=false`;
+  const targetViewUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=false`;
 
   // Fetch API ke through raw binary bytes data nikalna
   fetch(targetViewUrl)
@@ -835,7 +841,9 @@ onDownloadRowDocumentFile(rowElement: any) {
     return;
   }
 
-  const targetDownloadUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=true`;
+  // const targetDownloadUrl = `https://localhost:7036/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=true`;
+  // const targetDownloadUrl = `http://103.51.8.80/emsapi/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=true`;
+  const targetDownloadUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/DownloadFundFile/${targetAbgid}?forceDownload=true`;
   
   const ghostAnchorNode = document.createElement('a');
   ghostAnchorNode.href = targetDownloadUrl;
