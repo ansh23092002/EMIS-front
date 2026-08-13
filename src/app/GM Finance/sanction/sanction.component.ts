@@ -423,8 +423,24 @@ export class SanctionComponent implements OnInit {
   }
 
   fetchPoDetails(poId: number) {
+<<<<<<< HEAD
     this.api.get(`GMFI/GetPoItemDetails/${poId}`).subscribe({
       next: (data: any) => {
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> 636375c (deemand relese)
+    // const apiUrl = `https://localhost:7036/api/GMFI/GetPoItemDetails/${poId}`;
+    // const apiUrl = `http://103.51.8.80/emsapi/api/GMFI/GetPoItemDetails/${poId}`;
+    const apiUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/GetPoItemDetails/${poId}`;
+    this.http.get<any>(apiUrl).subscribe({
+      next: (data:any) => {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 636375c (deemand relese)
+>>>>>>> 614678a (deemand relese)
         if (Array.isArray(data)) { this.poDetails = data[0]; } 
         else { this.poDetails = data; }
         this.isLoading = false;
@@ -435,8 +451,24 @@ export class SanctionComponent implements OnInit {
   }
 
   fetchPoDetails1(poId: number) {
+<<<<<<< HEAD
     this.api.get(`GMFI/GetPoPenaltyDetails/${poId}`).subscribe({
       next: (data: any) => {
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> 636375c (deemand relese)
+    // const apiUrl = `https://localhost:7036/api/GMFI/GetPoPenaltyDetails/${poId}`;
+    // const apiUrl = `http://103.51.8.80/emsapi/api/GMFI/GetPoPenaltyDetails/${poId}`;
+    const apiUrl = `https://cgmsc.gov.in/emsapi/api/GMFI/GetPoPenaltyDetails/${poId}`;
+    this.http.get<any>(apiUrl).subscribe({
+      next: (data) => {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 636375c (deemand relese)
+>>>>>>> 614678a (deemand relese)
         if (Array.isArray(data)) { this.penaltyData = data[0]; } 
         else { this.penaltyData = data; }
       }
@@ -498,7 +530,13 @@ export class SanctionComponent implements OnInit {
     };
 
     this.spinner.show();
+<<<<<<< HEAD
     this.api.post1('GMFI/SaveSanctionHeader', payload).subscribe({
+=======
+    // this.http.post('https://localhost:7036/api/GMFI/SaveSanctionHeader', payload).subscribe({
+    // this.http.post('http://103.51.8.80/emsapi/api/GMFI/SaveSanctionHeader', payload).subscribe({
+    this.http.post('https://cgmsc.gov.in/emsapi/api/GMFI/SaveSanctionHeader', payload).subscribe({
+>>>>>>> 614678a (deemand relese)
       next: (response: any) => {
         this.spinner.hide();
         Swal.fire({ title: 'Success!', text: response.message || 'Sanction Data Saved Successfully', icon: 'success' });
