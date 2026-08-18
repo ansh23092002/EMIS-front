@@ -20,22 +20,31 @@
 
         <select aria-label="Select Directorate" [(ngModel)]="authorityId" name="authorityId"
           (change)="GetDashboardGrid()">
-          <option [value]="5">DME</option>
+          <option [value]="0">All Directorates</option>
           <option *ngFor="let d of Diectoratelist" [value]="d.facility_aut_id">
             {{ d.facility_aut_name }}
           </option>
         </select>
 
+        <label class="checkbox-pill">
+          <input type="checkbox" [(ngModel)]="onlyMyDesk" (change)="GetDashboardGrid()" />
+          Only My Desk
+        </label>
+
+        <button type="button" class="show-btn" (click)="GetDashboardGrid()">
+          <i class="bi bi-arrow-repeat me-1"></i> Show Details
+        </button>
+
         <button type="button" class="show-btn clear-btn" *ngIf="hasActiveFilters()" (click)="clearFilters()">
           Clear Filter
         </button>
 
-        <input type="text" class="search-input" placeholder="Search…" (keyup)="applyTextFilter($event)" />
+        <input type="text" class="search-input" placeholder="Search in table…" (keyup)="applyTextFilter($event)" />
       </div>
 
       <div class="export-actions">
         <button type="button" class="show-btn btn-excel"
-          (click)="exporter.exportTable('xlsx', { fileName: 'FileDashboard', sheet: 'Dashboard' })">
+          (click)="exporter.exportTable('xlsx', { fileName: 'Online_Received_Installation_Dashboard', sheet: 'Dashboard' })">
           <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
         </button>
       </div>
@@ -49,220 +58,240 @@
       <table class="it-grid" mat-table matTableExporter [dataSource]="dataSource" #exporter="matTableExporter" matSort
         #sort="matSort">
 
+        <!-- S.No -->
         <ng-container matColumnDef="sno">
           <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">#</th>
-          <td mat-cell *matCellDef="let element; let i = index" class="text-center">{{ i + 1 }}</td>
+          <td mat-cell *matCellDef="let element; let i = index" class="text-center fw-semibold">{{ i + 1 }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="PoNo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>PO No</th>
-          <td mat-cell *matCellDef="let element">{{ element.PoNo }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="TenderNo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tender No</th>
-          <td mat-cell *matCellDef="let element">{{ element.TenderNo }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="Supplier">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Supplier</th>
-          <td mat-cell *matCellDef="let element">{{ element.Supplier }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PoDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">PO Date</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.PoDate }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ItemName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Item</th>
-          <td mat-cell *matCellDef="let element">{{ element.ItemName }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PoQty">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">PO Qty</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.PoQty }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PoValue">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">PO Value</th>
-          <td mat-cell *matCellDef="let element" class="text-right">₹{{ element.PoValue | number }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="SupplyQty">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Supply Qty</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.SupplyQty }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ReceiptQty">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Receipt Qty</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.ReceiptQty }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="InsQty">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Ins Qty</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.InsQty }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="Conditond">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Fit Status</th>
+        <!-- Action / Sanction -->
+        <ng-container matColumnDef="FinRemarks">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Action / Sanction</th>
           <td mat-cell *matCellDef="let element" class="text-center">
-            <span class="status-pill" [class.status-fit]="element.Conditond === 'Fit For Payment'"
-              [class.status-unfit]="element.Conditond === 'Not Fit For Payment'">
-              {{ element.Conditond }}
-            </span>
+            <button type="button" class="pill-btn pill-btn--accent" (click)="ONOpenSanction(element.PoId, element.FileNo)"
+              [title]="'Click to view Sanction for PO ' + element.PoNo">
+              <i class="bi bi-file-earmark-check me-1"></i>
+              {{ element.FinRemarks || 'Sanction' }}
+            </button>
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="PresentFile">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Present File</th>
-          <td mat-cell *matCellDef="let element">{{ element.PresentFile }}</td>
+        <!-- Show Invoice -->
+        <ng-container matColumnDef="invoice">
+          <th mat-header-cell *matHeaderCellDef class="text-center">Invoice</th>
+          <td mat-cell *matCellDef="let element" class="text-center">
+            <button type="button" class="pill-btn pill-btn--info" (click)="ONOpenInvoice(element.PoId)"
+              title="Click to view Invoices">
+              <i class="bi bi-receipt me-1"></i> Invoices
+            </button>
+          </td>
         </ng-container>
 
-        <ng-container matColumnDef="FileNo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>File No</th>
-          <td mat-cell *matCellDef="let element">{{ element.FileNo }}</td>
+        <!-- Supplier -->
+        <ng-container matColumnDef="Supplier">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Supplier</th>
+          <td mat-cell *matCellDef="let element" class="fw-semibold">
+            <i class="bi bi-building text-secondary me-1"></i>{{ element.Supplier }}
+          </td>
         </ng-container>
 
+        <!-- PO No -->
+        <ng-container matColumnDef="PoNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>PO No</th>
+          <td mat-cell *matCellDef="let element" class="fw-bold text-primary">
+            <i class="bi bi-file-earmark-text me-1"></i>{{ element.PoNo }}
+          </td>
+        </ng-container>
+
+        <!-- PO Date -->
+        <ng-container matColumnDef="PoDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">PO Date</th>
+          <td mat-cell *matCellDef="let element" class="text-center">
+            <i class="bi bi-calendar3 text-muted me-1" *ngIf="element.PoDate && element.PoDate !== '-'"></i>
+            {{ element.PoDate }}
+          </td>
+        </ng-container>
+
+        <!-- PO Qty -->
+        <ng-container matColumnDef="PoQty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">PO Qty</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-bold">{{ element.PoQty }}</td>
+        </ng-container>
+
+        <!-- PO Value -->
+        <ng-container matColumnDef="PoValue">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">PO Value</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-bold text-success">
+            ₹{{ element.PoValue | number:'1.0-0' }}
+          </td>
+        </ng-container>
+
+        <!-- Item Name -->
+        <ng-container matColumnDef="ItemName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Item Name</th>
+          <td mat-cell *matCellDef="let element" class="wrap-cell" [title]="element.ItemName">
+            {{ element.ItemName }}
+          </td>
+        </ng-container>
+
+        <!-- Dispatched Qty -->
+        <ng-container matColumnDef="SupplyQty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Dispatch Qty</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-semibold">{{ element.SupplyQty }}</td>
+        </ng-container>
+
+        <!-- Received Qty -->
+        <ng-container matColumnDef="ReceiptQty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Received Qty</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-semibold">{{ element.ReceiptQty }}</td>
+        </ng-container>
+
+        <!-- Install Qty -->
+        <ng-container matColumnDef="InsQty">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Install Qty</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-semibold text-primary">{{ element.InsQty }}</td>
+        </ng-container>
+
+        <!-- Unpaid Qty -->
+        <ng-container matColumnDef="ToBePaid">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Unpaid Qty</th>
+          <td mat-cell *matCellDef="let element" class="text-right fw-bold text-danger">{{ element.ToBePaid }}</td>
+        </ng-container>
+
+        <!-- Last Receipt Date -->
         <ng-container matColumnDef="LastRDate">
           <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Last Receipt</th>
           <td mat-cell *matCellDef="let element" class="text-center">{{ element.LastRDate }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="FacilityAutName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Facility</th>
-          <td mat-cell *matCellDef="let element">{{ element.FacilityAutName }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PoType">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">PO Type</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.PoType }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="FileDt">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">File Date</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.FileDt }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PresentUserId">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Present User</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.PresentUserId }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ToUserId">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">To User</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.ToUserId }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PenaltyPercent">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Penalty %</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.PenaltyPercent }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ReasonName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Reason</th>
-          <td mat-cell *matCellDef="let element">{{ element.ReasonName }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="IsSolved">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Solved</th>
+        <!-- Fit Status -->
+        <ng-container matColumnDef="Conditond">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Fit Status</th>
           <td mat-cell *matCellDef="let element" class="text-center">
-            <span class="status-pill" [class.status-done]="element.IsSolved === 'Y'">
-              {{ element.IsSolved === 'Y' ? 'Yes' : 'No' }}
+            <span class="status-pill"
+              [class.status-fit]="element.Conditond === 'Fit' || element.Conditond === 'Fit For Payment'"
+              [class.status-unfit]="element.Conditond === 'Non Fit' || element.Conditond === 'Not Fit For Payment'">
+              <i class="bi bi-check-circle-fill me-1" *ngIf="element.Conditond === 'Fit' || element.Conditond === 'Fit For Payment'"></i>
+              <i class="bi bi-exclamation-triangle-fill me-1" *ngIf="element.Conditond === 'Non Fit' || element.Conditond === 'Not Fit For Payment'"></i>
+              {{ element.Conditond }}
             </span>
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="SiteStatus">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Site Status</th>
-          <td mat-cell *matCellDef="let element">{{ element.SiteStatus }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="RowNo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Row</th>
-          <td mat-cell *matCellDef="let element" class="text-right">{{ element.RowNo }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ToDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">To Date</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.ToDate }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="EntDt">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Entry Date</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.EntDt }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="FinRemarks">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Remarks</th>
+        <!-- Present File -->
+        <ng-container matColumnDef="PresentFile">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Present File</th>
           <td mat-cell *matCellDef="let element" class="text-center">
-            <a class="link-action" (click)="ONOpenSanction(element.PoId, element.FileNo)">
-              {{ element.FinRemarks || '—' }}
-            </a>
+            <span class="badge bg-light text-dark border px-2 py-1">
+              <i class="bi bi-folder2-open text-warning me-1"></i>{{ element.PresentFile }}
+            </span>
           </td>
         </ng-container>
 
+        <!-- User File Received Date -->
+        <ng-container matColumnDef="ToDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">File Received Date</th>
+          <td mat-cell *matCellDef="let element" class="text-center text-muted">{{ element.ToDate }}</td>
+        </ng-container>
+
+        <!-- Reason -->
+        <ng-container matColumnDef="ReasonName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Hold Reason</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.ReasonName" class="badge bg-warning bg-opacity-25 text-dark border border-warning px-2 py-1">
+              {{ element.ReasonName }}
+            </span>
+            <span *ngIf="!element.ReasonName" class="text-muted">—</span>
+          </td>
+        </ng-container>
+
+        <!-- Add Reason -->
         <ng-container matColumnDef="addReason">
-          <th mat-header-cell *matHeaderCellDef class="text-center">Reason</th>
+          <th mat-header-cell *matHeaderCellDef class="text-center">Hold Reason</th>
           <td mat-cell *matCellDef="let element" class="text-center">
             <button class="pill-btn pill-btn--warn" [disabled]="element.ReasonName && element.ReasonName !== ''"
-              (click)="openReasonModal(element.PoId)">
-              Add
+              (click)="openReasonModal(element.PoId)" title="Add hold reason">
+              <i class="bi bi-plus-circle me-1"></i> Add
             </button>
           </td>
         </ng-container>
 
+        <!-- Resolve Reason -->
         <ng-container matColumnDef="resolveReason">
           <th mat-header-cell *matHeaderCellDef class="text-center">Resolve</th>
           <td mat-cell *matCellDef="let element" class="text-center">
             <button class="pill-btn pill-btn--ok"
               [disabled]="!element.ReasonName || element.ReasonName === '' || element.IsSolved === 'Y'"
-              (click)="openResolveModal(element.PoId)">
-              Resolve
+              (click)="openResolveModal(element.PoId)" title="Resolve hold reason">
+              <i class="bi bi-check2-circle me-1"></i> Resolve
             </button>
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="Present_File_Action">
-          <th mat-header-cell *matHeaderCellDef class="text-center">Action</th>
-          <td mat-cell *matCellDef="let element" class="text-center">
-            <button class="pill-btn pill-btn--accent" (click)="ONOpenModal(element.PoId, element.FileNo)">
-              Forward
-            </button>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="ReasonId">
-          <th mat-header-cell *matHeaderCellDef class="text-center">Reason ID</th>
-          <td mat-cell *matCellDef="let element" class="text-center">{{ element.ReasonId }}</td>
-        </ng-container>
-
+        <!-- Installation Details -->
         <ng-container matColumnDef="action">
-          <th mat-header-cell *matHeaderCellDef class="text-center">Details</th>
+          <th mat-header-cell *matHeaderCellDef class="text-center">Install Details</th>
           <td mat-cell *matCellDef="let element" class="text-center">
-            <button class="pill-btn pill-btn--info" (click)="onButtonClick(element.PoId)">
-              <i class="bi bi-arrow-down-right"></i>
+            <button class="pill-btn pill-btn--info" (click)="onButtonClick(element.PoId)"
+              title="View full installation details">
+              <i class="bi bi-tools me-1"></i> Details
             </button>
           </td>
+        </ng-container>
+
+        <!-- Forward Physical File -->
+        <ng-container matColumnDef="Present_File_Action">
+          <th mat-header-cell *matHeaderCellDef class="text-center">File Action</th>
+          <td mat-cell *matCellDef="let element" class="text-center">
+            <button class="pill-btn pill-btn--accent" (click)="ONOpenModal(element.PoId, element.FileNo)"
+              title="Forward physical file">
+              <i class="bi bi-send me-1"></i> Forward
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Tender No -->
+        <ng-container matColumnDef="TenderNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tender Ref</th>
+          <td mat-cell *matCellDef="let element" class="text-muted">{{ element.TenderNo }}</td>
+        </ng-container>
+
+        <!-- Directorate -->
+        <ng-container matColumnDef="FacilityAutName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Directorate</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="badge bg-secondary bg-opacity-10 text-dark border px-2 py-1">
+              {{ element.FacilityAutName }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Entry Date -->
+        <ng-container matColumnDef="EntDt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Entry Date</th>
+          <td mat-cell *matCellDef="let element" class="text-center text-muted">{{ element.EntDt }}</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <mat-paginator #paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+      <mat-paginator #paginator [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons></mat-paginator>
 
-      <div class="empty-row" *ngIf="!dispatchData.length">No records found for the selected filters.</div>
+      <div class="empty-row" *ngIf="!dispatchData.length">
+        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
+        No records found matching the selected filters.
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Send / Forward File Modal (Standard EMS Modal Structure) -->
+<!-- Send / Forward File Modal (Standard EMS Layout) -->
 <div class="modal fade" id="SendModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Forward Physical File (Nasti)</h5>
+        <h5 class="modal-title"><i class="bi bi-send-fill me-2"></i>Forward Physical File (Nasti)</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -270,8 +299,8 @@
           <div class="form-row">
             <label class="form-label">Send Flag <em>*</em></label>
             <select [(ngModel)]="Sendoption" name="Send" (change)="Getsendto()" class="form-input" required>
-              <option value="">-- Select Option --</option>
               <option value="S">Send File</option>
+              <option value="B">Back File</option>
             </select>
           </div>
 
@@ -289,13 +318,15 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">Remarks <em>*</em></label>
-            <textarea rows="2" placeholder="Enter remarks…" [(ngModel)]="remarks" name="remarks" class="form-input"
-              required></textarea>
+            <label class="form-label">Remarks / Comments <em>*</em></label>
+            <textarea rows="3" placeholder="Enter remarks or forwarding comments…" [(ngModel)]="remarks" name="remarks"
+              class="form-input" required></textarea>
           </div>
 
           <div class="modal-footer">
-            <button type="submit" class="show-btn btn-add" [disabled]="forwardForm.invalid">Forward File</button>
+            <button type="submit" class="show-btn btn-add" [disabled]="forwardForm.invalid">
+              <i class="bi bi-check-circle me-1"></i> Forward File
+            </button>
             <button type="button" class="show-btn clear-btn" data-bs-dismiss="modal">Cancel</button>
           </div>
         </form>
@@ -304,12 +335,12 @@
   </div>
 </div>
 
-<!-- Reason Modal (Standard EMS Modal Structure) -->
+<!-- Reason Modal (Standard EMS Layout) -->
 <div class="modal fade" id="ReasonModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add File Holding Reason</h5>
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Add File Holding Reason</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -318,18 +349,20 @@
             <label class="form-label">Reason Master <em>*</em></label>
             <select [(ngModel)]="selectedReasonId" name="reasonId" class="form-input" required>
               <option value="">-- Select Hold Reason --</option>
-              <option *ngFor="let r of reasonList" [value]="r.ReasonId">{{ r.ReasonName }}</option>
+              <option *ngFor="let r of reasonList" [value]="r.ReasonId || r.reasonId">{{ r.ReasonName || r.reasonName }}</option>
             </select>
           </div>
 
           <div class="form-row">
             <label class="form-label">Remarks <em>*</em></label>
-            <textarea rows="2" placeholder="Enter remarks…" [(ngModel)]="reasonRemarks" name="reasonRemarks"
+            <textarea rows="3" placeholder="Enter hold reason remarks…" [(ngModel)]="reasonRemarks" name="reasonRemarks"
               class="form-input" required></textarea>
           </div>
 
           <div class="modal-footer">
-            <button type="submit" class="show-btn btn-add" [disabled]="reasonForm.invalid">Save Reason</button>
+            <button type="submit" class="show-btn btn-add" [disabled]="reasonForm.invalid">
+              <i class="bi bi-save me-1"></i> Save Reason
+            </button>
             <button type="button" class="show-btn clear-btn" data-bs-dismiss="modal">Cancel</button>
           </div>
         </form>
@@ -338,12 +371,12 @@
   </div>
 </div>
 
-<!-- Resolve Modal (Standard EMS Modal Structure) -->
+<!-- Resolve Modal (Standard EMS Layout) -->
 <div class="modal fade" id="ResolveModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Resolve File Hold Reason</h5>
+        <h5 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Resolve File Hold Reason</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -352,16 +385,114 @@
             <label class="form-label">Active Hold Reason <em>*</em></label>
             <select [(ngModel)]="selectedSorId" name="sorId" class="form-input" required>
               <option value="">-- Select Reason to Resolve --</option>
-              <option *ngFor="let r of resolveReasonList" [value]="r.SorId">{{ r.ReasonName }} — {{ r.Remarks }}
+              <option *ngFor="let r of resolveReasonList" [value]="r.SorId || r.sorId">
+                {{ r.ReasonName || r.reasonName }} — {{ r.Remarks || r.remarks }}
               </option>
             </select>
           </div>
 
           <div class="modal-footer">
-            <button type="submit" class="show-btn btn-add" [disabled]="resolveForm.invalid">Mark as Solved</button>
+            <button type="submit" class="show-btn btn-add" [disabled]="resolveForm.invalid">
+              <i class="bi bi-check2-circle me-1"></i> Mark as Solved
+            </button>
             <button type="button" class="show-btn clear-btn" data-bs-dismiss="modal">Cancel</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Details Modal (Standard EMS Layout) -->
+<div class="modal fade" id="InvoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-receipt-cutoff me-2"></i>Invoices for Supply Order
+          <span *ngIf="invoiceHeader?.poNo" class="ms-2 badge bg-light text-dark fw-bold">PO: {{ invoiceHeader?.poNo }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- PO Header Info -->
+        <div class="p-3 mb-3 bg-light rounded border" *ngIf="invoiceHeader">
+          <div class="row g-2">
+            <div class="col-md-4">
+              <strong>PO Number:</strong> <span class="text-primary">{{ invoiceHeader.poNo || '—' }}</span>
+            </div>
+            <div class="col-md-4">
+              <strong>PO Date:</strong> <span>{{ invoiceHeader.poDate || '—' }}</span>
+            </div>
+            <div class="col-md-4">
+              <strong>Supplier:</strong> <span class="fw-semibold">{{ invoiceHeader.supplierName || '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="invoiceLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-2">Loading invoice details…</p>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="table-responsive" *ngIf="!invoiceLoading">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0" *ngIf="invoicesData.length > 0">
+            <thead class="table-dark">
+              <tr>
+                <th class="text-center">#</th>
+                <th>Invoice No</th>
+                <th class="text-center">Invoice Date</th>
+                <th *ngIf="invoicesData[0]?.locationName">Location</th>
+                <th *ngIf="invoicesData[0]?.orderedQty !== undefined" class="text-end">Ordered Qty</th>
+                <th *ngIf="invoicesData[0]?.invoiceAbsQty !== undefined" class="text-end">Invoice Qty</th>
+                <th class="text-end">Invoice Value (₹)</th>
+                <th class="text-end">CGST (₹)</th>
+                <th class="text-end">SGST (₹)</th>
+                <th class="text-end">Total Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inv of invoicesData; let i = index">
+                <td class="text-center fw-bold">{{ i + 1 }}</td>
+                <td class="fw-semibold text-primary">
+                  <i class="bi bi-file-earmark-text me-1"></i>{{ inv.invoiceNo || inv.InvoiceNo || '—' }}
+                </td>
+                <td class="text-center">{{ inv.invoiceDate || inv.InvoiceDate || '—' }}</td>
+                <td *ngIf="inv.locationName">{{ inv.locationName }}</td>
+                <td *ngIf="inv.orderedQty !== undefined" class="text-end">{{ inv.orderedQty }}</td>
+                <td *ngIf="inv.invoiceAbsQty !== undefined" class="text-end">{{ inv.invoiceAbsQty }}</td>
+                <td class="text-end fw-semibold">₹{{ (inv.invoiceValue || inv.InvoiceValue || 0) | number:'1.2-2' }}</td>
+                <td class="text-end text-muted">₹{{ (inv.cgst || inv.Cgst || 0) | number:'1.2-2' }}</td>
+                <td class="text-end text-muted">₹{{ (inv.sgst || inv.Sgst || 0) | number:'1.2-2' }}</td>
+                <td class="text-end fw-bold text-success">
+                  ₹{{ ((inv.invoiceValue || inv.InvoiceValue || 0) + (inv.cgst || inv.Cgst || 0) + (inv.sgst || inv.Sgst || 0)) | number:'1.2-2' }}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="table-light fw-bold">
+              <tr>
+                <td [attr.colspan]="invoicesData[0]?.locationName ? 4 : 3" class="text-end">Total:</td>
+                <td *ngIf="invoicesData[0]?.orderedQty !== undefined"></td>
+                <td *ngIf="invoicesData[0]?.invoiceAbsQty !== undefined"></td>
+                <td class="text-end text-primary">₹{{ invoiceTotalValue | number:'1.2-2' }}</td>
+                <td class="text-end">₹{{ invoiceTotalCgst | number:'1.2-2' }}</td>
+                <td class="text-end">₹{{ invoiceTotalSgst | number:'1.2-2' }}</td>
+                <td class="text-end text-success fs-6">₹{{ invoiceGrandTotal | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div *ngIf="!invoicesData.length" class="text-center py-5 text-muted">
+            <i class="bi bi-info-circle fs-2 d-block mb-2 text-secondary opacity-50"></i>
+            No invoices registered for this Supply Order yet.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="show-btn clear-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

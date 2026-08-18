@@ -25,7 +25,8 @@
             <input type="radio" name="paymentType" value="All" [(ngModel)]="paymentType" [disabled]="loading"> All
           </label>
           <label class="radio-pill" [class.active]="paymentType === 'FP'">
-            <input type="radio" name="paymentType" value="FP" [(ngModel)]="paymentType" [disabled]="loading"> Fit For Payment
+            <input type="radio" name="paymentType" value="FP" [(ngModel)]="paymentType" [disabled]="loading"> Fit For
+            Payment
           </label>
           <label class="radio-pill" [class.active]="paymentType === 'NFP'">
             <input type="radio" name="paymentType" value="NFP" [(ngModel)]="paymentType" [disabled]="loading"> Not Fit
@@ -149,7 +150,8 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <div class="empty-row" *ngIf="!dataSource.data.length">No file movement data found. Select filters and click Show Details.</div>
+      <div class="empty-row" *ngIf="!dataSource.data.length">No file movement data found. Select filters and click Show
+        Details.</div>
       <mat-paginator #paginator [pageSizeOptions]="[10, 15, 30, 50]" showFirstLastButtons></mat-paginator>
     </div>
   </div>
@@ -170,10 +172,12 @@
               <label class="field-label">Send/Back</label>
               <div class="radio-group">
                 <label class="radio-pill" [class.active]="sendOption === 'S'">
-                  <input type="radio" name="sendOption" value="S" [(ngModel)]="sendOption" (change)="onSendOptionChange()"> Send
+                  <input type="radio" name="sendOption" value="S" [(ngModel)]="sendOption"
+                    (change)="onSendOptionChange()"> Send
                 </label>
                 <label class="radio-pill" [class.active]="sendOption === 'B'">
-                  <input type="radio" name="sendOption" value="B" [(ngModel)]="sendOption" (change)="onSendOptionChange()"> Back
+                  <input type="radio" name="sendOption" value="B" [(ngModel)]="sendOption"
+                    (change)="onSendOptionChange()"> Back
                 </label>
               </div>
             </div>
@@ -198,6 +202,97 @@
             <button type="submit" class="primary-btn" [disabled]="forwardForm.invalid">Save</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoices View Modal -->
+<div class="modal fade" id="dashInvoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Invoices for Supply Order
+          <span *ngIf="invoiceHeader?.poNo" class="badge bg-light text-dark fw-bold ms-2">PO: {{ invoiceHeader?.poNo
+            }}</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="p-3 mb-3 bg-light rounded border" *ngIf="invoiceHeader">
+          <div class="row g-2">
+            <div class="col-md-4">
+              <strong>PO Number:</strong> <span class="text-primary">{{ invoiceHeader.poNo || '—' }}</span>
+            </div>
+            <div class="col-md-4">
+              <strong>PO Date:</strong> <span>{{ invoiceHeader.poDate || '—' }}</span>
+            </div>
+            <div class="col-md-4">
+              <strong>Supplier:</strong> <span class="fw-semibold">{{ invoiceHeader.supplierName || '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="invoiceLoading" class="text-center py-4">
+          <p class="text-muted">Loading invoice details…</p>
+        </div>
+
+        <div class="table-responsive" *ngIf="!invoiceLoading">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0"
+            *ngIf="invoicesData.length > 0">
+            <thead class="table-dark">
+              <tr>
+                <th class="text-center">#</th>
+                <th>Invoice No</th>
+                <th class="text-center">Invoice Date</th>
+                <th *ngIf="invoicesData[0]?.locationName">Location</th>
+                <th *ngIf="invoicesData[0]?.orderedQty !== undefined" class="text-end">Ordered Qty</th>
+                <th *ngIf="invoicesData[0]?.invoiceAbsQty !== undefined" class="text-end">Invoice Qty</th>
+                <th class="text-end">Invoice Value (₹)</th>
+                <th class="text-end">CGST (₹)</th>
+                <th class="text-end">SGST (₹)</th>
+                <th class="text-end">Total Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inv of invoicesData; let i = index">
+                <td class="text-center fw-bold">{{ i + 1 }}</td>
+                <td class="fw-semibold text-primary">{{ inv.invoiceNo || inv.InvoiceNo || '—' }}</td>
+                <td class="text-center">{{ inv.invoiceDate || inv.InvoiceDate || '—' }}</td>
+                <td *ngIf="inv.locationName">{{ inv.locationName }}</td>
+                <td *ngIf="inv.orderedQty !== undefined" class="text-end">{{ inv.orderedQty }}</td>
+                <td *ngIf="inv.invoiceAbsQty !== undefined" class="text-end">{{ inv.invoiceAbsQty }}</td>
+                <td class="text-end fw-semibold">₹{{ (inv.invoiceValue || inv.InvoiceValue || 0) | number:'1.2-2' }}
+                </td>
+                <td class="text-end text-muted">₹{{ (inv.cgst || inv.Cgst || 0) | number:'1.2-2' }}</td>
+                <td class="text-end text-muted">₹{{ (inv.sgst || inv.Sgst || 0) | number:'1.2-2' }}</td>
+                <td class="text-end fw-bold text-success">
+                  ₹{{ ((inv.invoiceValue || inv.InvoiceValue || 0) + (inv.cgst || inv.Cgst || 0) + (inv.sgst || inv.Sgst
+                  || 0)) | number:'1.2-2' }}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="table-light fw-bold">
+              <tr>
+                <td [attr.colspan]="invoicesData[0]?.locationName ? 4 : 3" class="text-end">Total:</td>
+                <td *ngIf="invoicesData[0]?.orderedQty !== undefined"></td>
+                <td *ngIf="invoicesData[0]?.invoiceAbsQty !== undefined"></td>
+                <td class="text-end text-primary">₹{{ invoiceTotalValue | number:'1.2-2' }}</td>
+                <td class="text-end">₹{{ invoiceTotalCgst | number:'1.2-2' }}</td>
+                <td class="text-end">₹{{ invoiceTotalSgst | number:'1.2-2' }}</td>
+                <td class="text-end text-success">₹{{ invoiceGrandTotal | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div *ngIf="!invoicesData.length" class="text-center py-4 text-muted">
+            No invoices registered for this Supply Order yet.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
