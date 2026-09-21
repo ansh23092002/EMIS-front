@@ -24,21 +24,25 @@
     <!-- Add form -->
     <div class="form-card" *ngIf="showForm && selectedMenuId">
       <div class="form-grid">
+     
         <label class="field">
           <span class="field-label">Sub-Menu Name <em>*</em></span>
           <input
             type="text"
             [(ngModel)]="newSubMenuName"
             placeholder="Enter display name"
+            maxlength="50"
+            appSanitizeInput="letters"
             [disabled]="saving" />
         </label>
-
         <label class="field">
           <span class="field-label">Sub-Menu Link <em>*</em></span>
           <input
             type="text"
             [(ngModel)]="newSubMenuLink"
             placeholder="e.g. MyPage.aspx"
+            maxlength="100"
+            appSanitizeInput="url"
             [disabled]="saving" />
           <span class="field-hint">Must end with .aspx</span>
         </label>

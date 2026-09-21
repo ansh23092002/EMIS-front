@@ -305,7 +305,7 @@ const routes: Routes = [
     path: 'transaction/po-supply-dispatch-report',
     component: PoSupplyDispatchReportComponent,
     canActivate: [RouteGuardService],
-    data: { allowedRoles: ['SUP'] },
+    data: { allowedRoles: ['SUP', 'AUPO'] },
   },
   {
     path: 'po_supplyDispatch',

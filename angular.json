@@ -55,7 +55,7 @@
           "builder": "@angular/build:application",
           "options": {
             "outputPath": {
-              "base": "dist/EMIS"
+              "base": "dist/EMSA"
             },
             "index": "src/index.html",
             "polyfills": [

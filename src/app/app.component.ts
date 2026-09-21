@@ -395,13 +395,34 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
     const rawRoleId = sessionStorage.getItem('roleId') || localStorage.getItem('roleId');
     const loginData = JSON.parse(localStorage.getItem('loginData') || '{}');
     const roleId = rawRoleId ? parseInt(rawRoleId, 10) : (loginData?.roleid ? parseInt(loginData.roleid, 10) : null);
+    const activeRole = (this.role || this.basicAuthentication.getRole().roleName || localStorage.getItem('roleName') || loginData?.user_type || '').toUpperCase().trim();
 
-    if (roleId && !isNaN(roleId)) {
+    if (roleId && !isNaN(roleId) && activeRole !== 'FU' && activeRole !== 'PRINCIPAL' && activeRole !== 'FDA') {
       this.roleMenuService.getSidebarTreeForRole(roleId).subscribe({
         next: (items) => {
           console.log('[Sidebar Debug] roleId:', roleId, 'items received:', JSON.stringify(items, null, 2));
           if (items && items.length > 0) {
-            this.menuItems = items;
+            // For DME role: merge any static menu sections missing from the API response.
+            // The DB may not have all sub-menus mapped in masSubMenuRole, so sections like
+            // Stock can be absent from the API even though they exist in the static definition.
+            const isDmeOrCategoryRole =
+              ['DME', 'FU', 'PRINCIPAL', 'FDA', 'DHS', 'SEC1', 'CME', 'COLLECTOR', 'DME1'].includes(activeRole) ||
+              ['DME', 'FU', 'PRINCIPAL', 'FDA', 'DHS', 'SEC1', 'CME', 'COLLECTOR', 'DME1'].includes((this.basicAuthentication.getRole().roleName || '').toUpperCase().trim());
+            if (isDmeOrCategoryRole) {
+              const staticItems = this.menuService.getMenuItems(activeRole);
+              const apiLabels = new Set(items.map((i: any) => (i.label || '').toLowerCase()));
+              const missingStatic = (staticItems || []).filter(
+                (s: any) => s.label && !apiLabels.has(s.label.toLowerCase())
+              );
+              if (missingStatic.length > 0) {
+                console.log('[Sidebar Debug] Merging missing static sections:', missingStatic.map((s: any) => s.label));
+                this.menuItems = [...items, ...missingStatic];
+              } else {
+                this.menuItems = items;
+              }
+            } else {
+              this.menuItems = items;
+            }
           } else {
             console.log('[Sidebar Debug] No items returned, falling back to static menu');
             this.fallbackStaticMenu();
@@ -417,7 +438,6 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
         }
       });
     } else {
-      console.log('[Sidebar Debug] No roleId in session/storage, using static menu. sessionStorage:', sessionStorage.getItem('roleId'), 'localStorage:', localStorage.getItem('roleId'), 'loginData.roleid:', loginData?.roleid);
       this.fallbackStaticMenu();
       this.expandActiveParentMenu();
       this.updatePageHeading(this.router.url);
@@ -426,16 +446,17 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
 
 
   private fallbackStaticMenu() {
-    const hasCategories = ['SEC1', 'DHS', 'CME', 'Collector', 'DME1'].includes(this.role);
+    const currentRole = this.role || this.basicAuthentication.getRole().roleName || localStorage.getItem('roleName') || '';
+    const hasCategories = ['SEC1', 'DHS', 'CME', 'Collector', 'DME1'].includes(currentRole);
 
     if (hasCategories) {
       // Ensure a category exists so sidebar is never blank after department switch.
       if (!this.menuService.getSelectedCategory()) {
         this.menuService.setSelectedCategory('DrugsConsumables');
       }
-      this.menuItems = this.menuService.getMenuItems(this.role);
+      this.menuItems = this.menuService.getMenuItems(currentRole);
     } else {
-      this.menuItems = this.menuService.getMenuItems(this.role);
+      this.menuItems = this.menuService.getMenuItems(currentRole);
     }
   }
 

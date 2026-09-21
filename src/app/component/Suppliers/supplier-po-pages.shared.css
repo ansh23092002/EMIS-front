@@ -378,6 +378,13 @@ table.filter-panel .label-col {
   font-size: 12px;
 }
 
+.table-toolbar select[name='selectedYear'],
+.table-toolbar select.year-select {
+  min-width: auto;
+  width: auto;
+  max-width: 175px;
+}
+
 .table-toolbar select.po-select {
   min-width: 170px;
   max-width: 260px;

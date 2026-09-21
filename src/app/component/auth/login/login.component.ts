@@ -670,6 +670,26 @@ export class LoginComponent implements OnInit, AfterViewInit {
           if (updatedRes.username === 'Tender-Cell') {
             updatedRes.user_type = 'TPOT';
           }
+          if (this.currentTab === 'DME') {
+            if (
+              !updatedRes.user_type ||
+              updatedRes.user_type === 'User' ||
+              updatedRes.user_type === 'FU' ||
+              updatedRes.user_type === 'FDA' ||
+              updatedRes.user_type === 'PRINCIPAL'
+            ) {
+              updatedRes.user_type = 'DME';
+            }
+          }
+          if (this.currentTab === 'DHS') {
+            if (
+              !updatedRes.user_type ||
+              updatedRes.user_type === 'User' ||
+              updatedRes.user_type.toUpperCase() === 'USER'
+            ) {
+              updatedRes.user_type = 'DHS';
+            }
+          }
 
           localStorage.setItem('loginData', JSON.stringify(updatedRes));
 
@@ -688,10 +708,47 @@ export class LoginComponent implements OnInit, AfterViewInit {
               updatedRes?.user_id ?? updatedRes?.User_Id ?? updatedRes?.userId ?? updatedRes?.UserId,
             );
 
-            const role = String(updatedRes?.user_type ?? res?.user_type ?? '').toUpperCase();
-            this.setRole(updatedRes?.user_type ?? res?.user_type ?? role);
+            const roleIdVal = String(
+              updatedRes?.roleid ?? res?.roleid ?? (this.currentTab === 'DME' ? '12' : (this.currentTab === 'DHS' ? '2' : '')),
+            );
+            if (roleIdVal) {
+              sessionStorage.setItem('roleId', roleIdVal);
+              localStorage.setItem('roleId', roleIdVal);
+            }
+            const userIdVal = String(
+              updatedRes?.user_id ?? res?.user_id ?? this.id ?? '',
+            );
+            if (userIdVal) {
+              sessionStorage.setItem('userid', userIdVal);
+              sessionStorage.setItem('divisionID', userIdVal);
+              sessionStorage.setItem('facilityid', userIdVal);
+            }
+            const userNameVal = String(
+              updatedRes?.username ?? res?.username ?? this.firstname ?? '',
+            );
+            if (userNameVal) {
+              sessionStorage.setItem('firstname', userNameVal);
+            }
+            const authUserVal = String(
+              updatedRes?.email ?? res?.email ?? this.emailid ?? userIdVal,
+            );
+            if (authUserVal) {
+              sessionStorage.setItem('authenticatedUser', authUserVal);
+            }
 
-            if (role === 'FU' || role === 'PRINCIPAL' || role === 'FDA') {
+            const rawRole = String(
+              updatedRes?.user_type ?? res?.user_type ?? (this.currentTab === 'DME' ? 'DME' : ''),
+            ).toUpperCase();
+            const resolvedRole = this.resolveMenuRole(rawRole);
+            this.setRole(resolvedRole);
+
+            if (
+              this.currentTab === 'DME' ||
+              resolvedRole === 'DME' ||
+              rawRole === 'FU' ||
+              rawRole === 'PRINCIPAL' ||
+              rawRole === 'FDA'
+            ) {
               if (
                 String(updatedRes?.flagPwdChange ?? res?.flagPwdChange ?? '').toUpperCase() === 'N'
               ) {
@@ -700,26 +757,26 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/masters/store-home']);
               }
             } else if (
-              role === 'AD' ||
-              role === 'AU' ||
-              role === 'AAO' ||
-              role === 'AYUSH' ||
-              role === 'CGMSC' ||
-              role === 'CON' ||
-              role === 'DHS' ||
-              role === 'DKS' ||
-              role === 'DME' ||
-              role === 'DMT' ||
-              role === 'GMF' ||
-              role === 'IT' ||
-              role === 'SCI' ||
-              role === 'SUP' ||
-              role === 'TPO' ||
-              role === 'AUPO' ||
-              role === 'AUGMF'
+              resolvedRole === 'AD' ||
+              resolvedRole === 'AU' ||
+              resolvedRole === 'AAO' ||
+              resolvedRole === 'AYUSH' ||
+              resolvedRole === 'CGMSC' ||
+              resolvedRole === 'CON' ||
+              resolvedRole === 'DHS' ||
+              resolvedRole === 'DKS' ||
+              resolvedRole === 'DMT' ||
+              resolvedRole === 'GMF' ||
+              resolvedRole === 'IT' ||
+              resolvedRole === 'SCI' ||
+              resolvedRole === 'SUP' ||
+              resolvedRole === 'Suppliers' ||
+              resolvedRole === 'TPO' ||
+              resolvedRole === 'AUPO' ||
+              resolvedRole === 'AUGMF'
             ) {
               this.router.navigate(['/welcome']);
-            } else if (role === 'QC') {
+            } else if (resolvedRole === 'QC') {
               this.router.navigate(['/qc-dashboard']);
             } else {
               this.router.navigate(['/home']);

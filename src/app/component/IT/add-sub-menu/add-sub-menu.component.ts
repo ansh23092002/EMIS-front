@@ -7,6 +7,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { DmePageSkeletonComponent } from '../../DME/shared/dme-page-skeleton/dme-page-skeleton.component';
+import { AppSanitizeInputDirective } from '../../../directives/sanitize-input.directive';
+import { sanitizeInput, hasXssPayload } from '../../../helper/sanitizer.helper';
 import {
   RoleMenuService,
   MenuDto,
@@ -23,6 +25,7 @@ import {
     MatPaginatorModule,
     MatSortModule,
     DmePageSkeletonComponent,
+    AppSanitizeInputDirective,
   ],
   templateUrl: './add-sub-menu.component.html',
   styleUrls: ['./add-sub-menu.component.css'],
@@ -84,11 +87,21 @@ export class AddSubMenuComponent implements OnInit {
       this.toastr.warning('Please select a parent menu.');
       return;
     }
-    if (!this.newSubMenuName.trim() || !this.newSubMenuLink.trim()) {
-      this.toastr.warning('Please enter sub-menu name and link.');
+
+    const cleanName = sanitizeInput(this.newSubMenuName, 'letters', 50).trim();
+    const cleanLink = sanitizeInput(this.newSubMenuLink, 'url', 100).trim();
+
+    if (!cleanName || !cleanLink) {
+      this.toastr.warning('Please enter valid sub-menu name and link.');
       return;
     }
-    if (!this.newSubMenuLink.trim().endsWith('.aspx')) {
+
+    if (hasXssPayload(this.newSubMenuName) || hasXssPayload(this.newSubMenuLink)) {
+      this.toastr.error('Invalid or malicious script characters detected.');
+      return;
+    }
+
+    if (!cleanLink.toLowerCase().endsWith('.aspx')) {
       this.toastr.warning('Link must end with .aspx');
       return;
     }
@@ -96,8 +109,8 @@ export class AddSubMenuComponent implements OnInit {
     this.saving = true;
     this.itApi
       .createSubMenu({
-        SubMenuName: this.newSubMenuName.trim(),
-        SubMenuLink: this.newSubMenuLink.trim(),
+        SubMenuName: cleanName,
+        SubMenuLink: cleanLink,
         MenuId: this.selectedMenuId,
       })
       .subscribe({
@@ -115,3 +128,4 @@ export class AddSubMenuComponent implements OnInit {
       });
   }
 }
+

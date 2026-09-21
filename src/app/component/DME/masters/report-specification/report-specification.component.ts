@@ -63,7 +63,7 @@ export class ReportSpecificationComponent implements OnInit {
   constructor(
     private readonly http: HttpClient,
     private readonly toastr: ToastrService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.activeSummaryKey = 'ALL';

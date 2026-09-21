@@ -695,15 +695,27 @@ export class MenuServiceService {
           submenu: [
             {
               label: 'Medical College Contact Details',
-              route: '/StoreHome',
+              route: '/masters/store-home',
+            },
+            {
+              label: 'Consignee Information',
+              route: '/masters/consignee-information',
             },
             {
               label: 'Health Facility Details',
               route: '/HealthFacilityDetails',
             },
             {
+              label: 'Report Specification',
+              route: '/masters/report-specification',
+            },
+            {
+              label: 'CME EEL Suggestion',
+              route: '/masters/cme-eel-suggestion',
+            },
+            {
               label: 'Specification Upload',
-              route: '/Itemspecification',
+              route: '/reports/eel-specification',
             },
             {
               label: 'Generation of File No/Nasti No',
@@ -735,6 +747,10 @@ export class MenuServiceService {
             {
               label: 'Opening Stock Reports',
               route: '/stock/opening-stock-entry',
+            },
+            {
+              label: 'New Opening Stock Entry',
+              route: '/stock/new-opening-stock-entry',
             },
           ],
         },
@@ -797,6 +813,8 @@ export class MenuServiceService {
           submenu: [
             { label: 'Indent Budget Heads', route: '/indents/budget-heads' },
             { label: 'Annual Indent', route: '/indents/annual-indent' },
+            { label: 'Annual Indent Items', route: '/indents/annual-indent-items' },
+            { label: 'Annual Indent Report', route: '/indents/annual-indent-report' },
             {
               label: 'Indent From Facilities',
               route: '/indents/from-facilities',
@@ -829,6 +847,10 @@ export class MenuServiceService {
             {
               label: 'Facility Complain (Store)',
               route: '/complain/facility-store',
+            },
+            {
+              label: 'Complaint Status',
+              route: '/complain/complaint-status-facility',
             },
             { label: 'Complain Report', route: '/complain/report' },
           ],
@@ -1735,7 +1757,36 @@ export class MenuServiceService {
     route: string;
     submenu?: { label: string; route: string }[];
     }[] {
-    const roleMenu = this.menu[role];
+    if (!role) {
+      return [];
+    }
+
+    const upper = role.toUpperCase().trim();
+    const roleAliases: Record<string, string> = {
+      FU: 'DME',
+      PRINCIPAL: 'DME',
+      FDA: 'DME',
+      FACILITY: 'DME',
+      MEDICAL: 'DME',
+      'MEDICAL COLLEGE': 'DME',
+      SUP: 'Suppliers',
+      SUPPLIER: 'Suppliers',
+      SUPPLIERS: 'Suppliers',
+      GMF: 'AUGMF',
+      'GM FINANCE': 'AUGMF',
+      'PO-CELL': 'AUPO',
+      POCELL: 'AUPO',
+    };
+
+    const targetRole = roleAliases[upper] || roleAliases[role] || role;
+    let roleMenu = this.menu[targetRole] || this.menu[role];
+
+    if (!roleMenu) {
+      const foundKey = Object.keys(this.menu).find((k) => k.toUpperCase() === upper);
+      if (foundKey) {
+        roleMenu = this.menu[foundKey];
+      }
+    }
 
     if (!roleMenu) {
       return [];
@@ -1743,14 +1794,14 @@ export class MenuServiceService {
 
     const rolesUsingCategories = ['Collector', 'SEC1', 'DHS', 'CME', 'DME1'];
 
-    if (rolesUsingCategories.includes(role) && roleMenu.categories) {
+    if (rolesUsingCategories.includes(targetRole) && roleMenu.categories) {
       let selectedCategory = this.getSelectedCategory();
       if (!selectedCategory || !roleMenu.categories[selectedCategory]) {
         const keys = Object.keys(roleMenu.categories) as Array<
           'DrugsConsumables' | 'EquipmentReagent' | 'Infrastructure' | 'Admin'
         >;
         const preferred =
-          (role === 'DME1' || role === 'CME') && keys.includes('EquipmentReagent')
+          (targetRole === 'DME1' || targetRole === 'CME') && keys.includes('EquipmentReagent')
             ? 'EquipmentReagent'
             : keys[0];
         if (preferred) {

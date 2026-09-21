@@ -3,7 +3,7 @@
 
   <div class="datagrid">
     <div class="table-toolbar filters--compact">
-      <select [(ngModel)]="selectedYear" name="selectedYear" [class.is-placeholder]="!selectedYear">
+      <select [(ngModel)]="selectedYear" name="selectedYear" class="year-select" [class.is-placeholder]="!selectedYear">
         <option [ngValue]="undefined">Select Financial Year</option>
         <option *ngFor="let y of Yearlist" [ngValue]="y.financial_year_id || y.value">{{ y.year || y.text }}</option>
       </select>

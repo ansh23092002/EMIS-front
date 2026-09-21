@@ -3,20 +3,13 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
+import { sanitizePayload } from '../../helper/sanitizer.helper';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   
   const token = sessionStorage.getItem('token');
   let clonedRequest = req;
-
-  if (token) {
-    clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
 
   const urlLower = req.url.toLowerCase();
   const isAuthRequest =
@@ -25,6 +18,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     urlLower.includes('/supplierauth') ||
     urlLower.includes('/api/login') ||
     urlLower.endsWith('/login');
+
+  // Sanitize request body for non-auth data modification requests
+  let sanitizedBody = req.body;
+  if (!isAuthRequest && req.body && typeof req.body === 'object' && !(req.body instanceof FormData)) {
+    sanitizedBody = sanitizePayload(req.body);
+  }
+
+  clonedRequest = req.clone({
+    body: sanitizedBody,
+    setHeaders: token ? { Authorization: `Bearer ${token}` } : {},
+  });
 
   return next(clonedRequest).pipe(
     catchError((error: HttpErrorResponse) => {

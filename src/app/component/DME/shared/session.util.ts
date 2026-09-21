@@ -9,10 +9,15 @@ export function resolveLoginAuthorityId(): string {
 }
 
 export function apiErrorMessage(
-  err: { error?: { message?: string; detail?: string } },
+  err: { error?: { userError?: string; developerError?: string; message?: string; detail?: string; error?: string } },
   fallback: string,
 ): string {
-  const detail = err?.error?.detail?.trim();
-  const message = err?.error?.message?.trim();
-  return detail ? (message ? `${message} (${detail})` : detail) : message || fallback;
+  const devError = err?.error?.developerError?.trim() || err?.error?.detail?.trim() || (typeof err?.error?.error === 'string' ? err?.error?.error?.trim() : '');
+  const userError = err?.error?.userError?.trim() || err?.error?.message?.trim();
+
+  if (devError) {
+    console.error('[Developer Error]:', devError);
+  }
+
+  return userError || fallback;
 }
