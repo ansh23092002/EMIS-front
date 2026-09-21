@@ -405,16 +405,17 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
             // For DME role: merge any static menu sections missing from the API response.
             // The DB may not have all sub-menus mapped in masSubMenuRole, so sections like
             // Stock can be absent from the API even though they exist in the static definition.
-            const isDme = ['DME', 'FU', 'PRINCIPAL', 'FDA'].includes(activeRole) ||
-                          ['DME', 'FU', 'PRINCIPAL', 'FDA'].includes((this.basicAuthentication.getRole().roleName || '').toUpperCase().trim());
-            if (isDme) {
-              const staticItems = this.menuService.getMenuItems(activeRole === 'DME' ? 'DME' : activeRole);
+            const isDmeOrCategoryRole =
+              ['DME', 'FU', 'PRINCIPAL', 'FDA', 'DHS', 'SEC1', 'CME', 'COLLECTOR', 'DME1'].includes(activeRole) ||
+              ['DME', 'FU', 'PRINCIPAL', 'FDA', 'DHS', 'SEC1', 'CME', 'COLLECTOR', 'DME1'].includes((this.basicAuthentication.getRole().roleName || '').toUpperCase().trim());
+            if (isDmeOrCategoryRole) {
+              const staticItems = this.menuService.getMenuItems(activeRole);
               const apiLabels = new Set(items.map((i: any) => (i.label || '').toLowerCase()));
               const missingStatic = (staticItems || []).filter(
                 (s: any) => s.label && !apiLabels.has(s.label.toLowerCase())
               );
               if (missingStatic.length > 0) {
-                console.log('[Sidebar Debug] DME: merging missing static sections:', missingStatic.map((s: any) => s.label));
+                console.log('[Sidebar Debug] Merging missing static sections:', missingStatic.map((s: any) => s.label));
                 this.menuItems = [...items, ...missingStatic];
               } else {
                 this.menuItems = items;

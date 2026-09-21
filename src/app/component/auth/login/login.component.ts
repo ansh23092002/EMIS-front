@@ -681,6 +681,15 @@ export class LoginComponent implements OnInit, AfterViewInit {
               updatedRes.user_type = 'DME';
             }
           }
+          if (this.currentTab === 'DHS') {
+            if (
+              !updatedRes.user_type ||
+              updatedRes.user_type === 'User' ||
+              updatedRes.user_type.toUpperCase() === 'USER'
+            ) {
+              updatedRes.user_type = 'DHS';
+            }
+          }
 
           localStorage.setItem('loginData', JSON.stringify(updatedRes));
 
@@ -700,7 +709,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             );
 
             const roleIdVal = String(
-              updatedRes?.roleid ?? res?.roleid ?? (this.currentTab === 'DME' ? '12' : ''),
+              updatedRes?.roleid ?? res?.roleid ?? (this.currentTab === 'DME' ? '12' : (this.currentTab === 'DHS' ? '2' : '')),
             );
             if (roleIdVal) {
               sessionStorage.setItem('roleId', roleIdVal);
