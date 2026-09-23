@@ -283,14 +283,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
       selectedUser.firstname ??
       '';
 
-    this.setRole(this.rolename);
-    sessionStorage.setItem('firstname', this.firstname);
-    sessionStorage.setItem(
-      'authenticatedUser',
-      selectedUser.e_mail_id ?? String(selectedUser.user_id),
-    );
-    sessionStorage.setItem('divisionID', String(selectedUser.user_id));
-
     if (selectedUser.e_mail_id) {
       this.emailid = selectedUser.e_mail_id;
       this.EMAIL = 'EMAIL';
@@ -708,9 +700,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
               updatedRes?.user_id ?? updatedRes?.User_Id ?? updatedRes?.userId ?? updatedRes?.UserId,
             );
 
-            const roleIdVal = String(
-              updatedRes?.roleid ?? res?.roleid ?? (this.currentTab === 'DME' ? '12' : (this.currentTab === 'DHS' ? '2' : '')),
-            );
+            const rawRoleId =
+              updatedRes?.roleid ||
+              res?.roleid ||
+              (this.currentTab === 'DME' ? '12' : (this.currentTab === 'DHS' ? '2' : ''));
+            const roleIdVal = String(rawRoleId || '');
             if (roleIdVal) {
               sessionStorage.setItem('roleId', roleIdVal);
               localStorage.setItem('roleId', roleIdVal);

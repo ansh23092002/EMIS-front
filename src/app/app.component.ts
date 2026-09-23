@@ -165,6 +165,7 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
     this.expandedMenus[menuLabel] = !this.expandedMenus[menuLabel];
   }
   role: any = ''; // Dynamic role
+  private currentRoleId: number | null = null;
   constructor(
     private location: Location,
     private cdr: ChangeDetectorRef,
@@ -227,7 +228,9 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
       this.router.navigate(['login'])
     }
     this.role = '';
+    this.currentRoleId = null;
     this.menuItems = [];
+    this.roleMenuService.clearSidebarCache();
   }
 
   goBack(): void {
@@ -284,13 +287,16 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
         this.isLoginPage = this.isShellFreeUrl(event.urlAfterRedirects || event.url);
         if (this.isLoginPage) {
           this.isDrawerOpen = false;
+          this.menuItems = [];
+          this.currentRoleId = null;
         } else if (wasShellFree) {
-          // Print/login shell pages force drawer closed — restore for normal pages.
+          // Print/login shell pages force drawer closed — restore for normal pages and refresh sidebar for new session
           this.applyDrawerLayout(this.isMobile, true);
-        }
-
-        this.role = this.basicAuthentication.getRole().roleName;
-        if (!this.menuItems || this.menuItems.length === 0) {
+          this.role = this.basicAuthentication.getRole().roleName;
+          this.currentRoleId = null;
+          this.roleMenuService.clearSidebarCache();
+          this.updateMenu();
+        } else if (!this.menuItems || this.menuItems.length === 0) {
           this.updateMenu();
         }
         this.updatePageHeading(event.urlAfterRedirects);
@@ -360,11 +366,18 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
       this.firstname = 'Public View Of Drugs and Consumables';
     }
 
-    // Refresh sidebar when department/role changes without full reload.
-    if (role && role !== this.role) {
-      this.role = role;
-      this.roleMenuService.clearSidebarCache();
-      this.updateMenu();
+    // Refresh sidebar when department/role/roleId changes without full reload (only on authenticated shell pages).
+    if (!this.isLoginPage) {
+      const rawRoleId = sessionStorage.getItem('roleId') || localStorage.getItem('roleId');
+      const roleId = rawRoleId ? parseInt(rawRoleId, 10) : (loginData?.roleid ? parseInt(loginData.roleid, 10) : null);
+      const roleChanged = !!role && role !== this.role;
+      const roleIdChanged = roleId != null && !isNaN(roleId) && roleId !== this.currentRoleId;
+      if (roleChanged || roleIdChanged) {
+        this.role = role;
+        this.currentRoleId = roleId;
+        this.roleMenuService.clearSidebarCache();
+        this.updateMenu();
+      }
     }
 
     this.cdr.detectChanges();
@@ -397,7 +410,8 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
     const roleId = rawRoleId ? parseInt(rawRoleId, 10) : (loginData?.roleid ? parseInt(loginData.roleid, 10) : null);
     const activeRole = (this.role || this.basicAuthentication.getRole().roleName || localStorage.getItem('roleName') || loginData?.user_type || '').toUpperCase().trim();
 
-    if (roleId && !isNaN(roleId) && activeRole !== 'FU' && activeRole !== 'PRINCIPAL' && activeRole !== 'FDA') {
+    if (roleId && !isNaN(roleId)) {
+      this.currentRoleId = roleId;
       this.roleMenuService.getSidebarTreeForRole(roleId).subscribe({
         next: (items) => {
           console.log('[Sidebar Debug] roleId:', roleId, 'items received:', JSON.stringify(items, null, 2));
@@ -429,18 +443,21 @@ export class AppComponent implements OnInit, DoCheck, OnDestroy {
           }
           this.expandActiveParentMenu();
           this.updatePageHeading(this.router.url);
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('[Sidebar Debug] API error:', err);
           this.fallbackStaticMenu();
           this.expandActiveParentMenu();
           this.updatePageHeading(this.router.url);
+          this.cdr.markForCheck();
         }
       });
     } else {
       this.fallbackStaticMenu();
       this.expandActiveParentMenu();
       this.updatePageHeading(this.router.url);
+      this.cdr.markForCheck();
     }
   }
 
