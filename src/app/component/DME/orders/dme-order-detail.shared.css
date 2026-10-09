@@ -357,7 +357,8 @@
   width: 100%;
   max-width: 100%;
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
   overflow: auto;
   background: var(--table-cell-bg);
   border-radius: 10px;

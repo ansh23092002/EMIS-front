@@ -44,51 +44,55 @@
               <mat-icon>{{ isDrawerOpen ? 'close' : 'menu' }}</mat-icon>
             </button>
 
-            <div class="header-search-wrap header-search-wrap--actions">
-              <div class="header-search" [class.is-focused]="menuSearchFocused">
-                <mat-icon class="header-search-icon">search</mat-icon>
-                <input
-                  type="search"
-                  class="header-search-input"
-                  [(ngModel)]="menuSearchQuery"
-                  (input)="onMenuSearchInput()"
-                  (focus)="onMenuSearchFocus()"
-                  (blur)="onMenuSearchBlur()"
-                  placeholder="Search menu"
-                  aria-label="Search menu"
-                  autocomplete="off"
-                  role="combobox"
-                  [attr.aria-expanded]="menuSearchFocused && menuSearchQuery.trim().length > 0"
-                  aria-controls="menu-search-suggestions" />
-              </div>
-
-              <ul
-                id="menu-search-suggestions"
-                class="header-search-suggestions"
-                *ngIf="menuSearchFocused && menuSearchQuery.trim() && menuSearchSuggestions.length"
-                role="listbox">
-                <li *ngFor="let suggestion of menuSearchSuggestions" role="option">
-                  <button
-                    type="button"
-                    class="header-search-suggestion"
-                    (mousedown)="selectMenuSuggestion(suggestion); $event.preventDefault()">
-                    <mat-icon aria-hidden="true">subdirectory_arrow_right</mat-icon>
-                    <span class="suggestion-text">
-                      <span class="suggestion-label">{{ suggestion.label }}</span>
-                      <span class="suggestion-parent" *ngIf="suggestion.parentLabel">{{ suggestion.parentLabel }}</span>
-                    </span>
-                  </button>
-                </li>
-              </ul>
-
-              <p
-                class="header-search-empty"
-                *ngIf="menuSearchFocused && menuSearchQuery.trim() && !menuSearchSuggestions.length">
-                No menu items match your search.
-              </p>
+            <div class="header-page-title" *ngIf="pageHeading">
+              <h1 class="header-title-text">{{ pageHeading }}</h1>
             </div>
 
             <div class="header-actions-right">
+              <div class="header-search-wrap header-search-wrap--actions">
+                <div class="header-search" [class.is-focused]="menuSearchFocused">
+                  <mat-icon class="header-search-icon">search</mat-icon>
+                  <input
+                    type="search"
+                    class="header-search-input"
+                    [(ngModel)]="menuSearchQuery"
+                    (input)="onMenuSearchInput()"
+                    (focus)="onMenuSearchFocus()"
+                    (blur)="onMenuSearchBlur()"
+                    placeholder="Search menu"
+                    aria-label="Search menu"
+                    autocomplete="off"
+                    role="combobox"
+                    [attr.aria-expanded]="menuSearchFocused && menuSearchQuery.trim().length > 0"
+                    aria-controls="menu-search-suggestions" />
+                </div>
+
+                <ul
+                  id="menu-search-suggestions"
+                  class="header-search-suggestions"
+                  *ngIf="menuSearchFocused && menuSearchQuery.trim() && menuSearchSuggestions.length"
+                  role="listbox">
+                  <li *ngFor="let suggestion of menuSearchSuggestions" role="option">
+                    <button
+                      type="button"
+                      class="header-search-suggestion"
+                      (mousedown)="selectMenuSuggestion(suggestion); $event.preventDefault()">
+                      <mat-icon aria-hidden="true">subdirectory_arrow_right</mat-icon>
+                      <span class="suggestion-text">
+                        <span class="suggestion-label">{{ suggestion.label }}</span>
+                        <span class="suggestion-parent" *ngIf="suggestion.parentLabel">{{ suggestion.parentLabel }}</span>
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+
+                <p
+                  class="header-search-empty"
+                  *ngIf="menuSearchFocused && menuSearchQuery.trim() && !menuSearchSuggestions.length">
+                  No menu items match your search.
+                </p>
+              </div>
+
               <div class="header-notify-wrap" [class.is-open]="notificationsOpen">
                 <button
                   type="button"
@@ -146,7 +150,6 @@
         </header>
 
         <div class="shell-page-card content-area emis-page-content">
-          <h1 class="page-shell-title" *ngIf="pageHeading">{{ pageHeading }}</h1>
           <main class="page-outlet-wrapper">
             <router-outlet></router-outlet>
           </main>

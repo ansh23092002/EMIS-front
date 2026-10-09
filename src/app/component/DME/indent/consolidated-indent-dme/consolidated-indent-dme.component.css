@@ -99,7 +99,8 @@
 
 .table-wrap {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
   width: 100%;
   overflow: auto;
   background: var(--table-cell-bg);

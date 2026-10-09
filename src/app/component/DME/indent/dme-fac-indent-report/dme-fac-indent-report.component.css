@@ -163,6 +163,9 @@
 }
 
 .table-wrap {
+  flex: 1 1 auto;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
   overflow: auto;
   border: 1px solid #e2e8f0;
   border-radius: 10px;

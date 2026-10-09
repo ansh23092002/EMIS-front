@@ -16,21 +16,14 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
+  overflow: auto;
 }
 
 .ems-legacy-page .header-bar {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto 16px;
-  padding: 10px 24px;
-  background-color: #4d67a0;
-  color: #fff;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 700;
-  border: none;
+  display: none;
 }
 
 .ems-legacy-page .header-bar.narrow {

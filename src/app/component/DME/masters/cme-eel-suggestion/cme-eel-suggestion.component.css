@@ -18,7 +18,10 @@
 }
 
 .table-wrap {
-  overflow-x: auto;
+  flex: 1 1 auto;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
+  overflow: auto;
 }
 
 .eel-page .legacy-grid {

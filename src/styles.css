@@ -424,7 +424,7 @@ canvas {
   min-width: 0;
 }
 
-/* Only these containers scroll — not the full page */
+/* Only these containers scroll — not the full page, and maximize vertical height across all pages */
 .page-outlet-wrapper .datagrid,
 .page-outlet-wrapper .table-wrap,
 .page-outlet-wrapper .grid-scroll,
@@ -437,8 +437,10 @@ canvas {
 .emis-page-content .table-container {
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
+  flex: 1 1 auto;
+  min-height: max(500px, calc(100vh - 220px));
+  height: 100%;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -454,6 +456,13 @@ canvas {
   min-width: max-content !important;
   table-layout: auto;
   border-collapse: collapse;
+}
+
+/* Suppress redundant in-page titles since page title is now globally displayed in the navbar */
+.emis-page-content h2.page-title,
+.emis-page-content h1.page-title,
+.emis-page-content .header-bar:not(.keep-header) {
+  display: none !important;
 }
 
 /* Full-width fixed tables (Budget Heads, short master lists) */
